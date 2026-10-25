@@ -89,8 +89,8 @@ def _recall_memories(db, query: str) -> str | None:
 
 
 def _system_prompt() -> str:
-    from app.config import PROMPTS_DIR
-    return (PROMPTS_DIR / "system_v0.1.md").read_text(encoding="utf-8")
+    from app.config import PROMPTS_DIR, SYSTEM_PROMPT_VERSION
+    return (PROMPTS_DIR / f"system_{SYSTEM_PROMPT_VERSION}.md").read_text(encoding="utf-8")
 
 
 def run_agent(db: Session, user_message: str, session_id: str = "default"):

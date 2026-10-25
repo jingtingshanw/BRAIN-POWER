@@ -13,6 +13,7 @@ MODEL_FALLBACK = os.getenv("MODEL_FALLBACK", "qwen-flash")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-v4")
 EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "1024"))
 GUARD_MAX_RETRIES = int(os.getenv("GUARD_MAX_RETRIES", "1"))
+SYSTEM_PROMPT_VERSION = os.getenv("SYSTEM_PROMPT_VERSION", "v0.1")  # 提示词版本，校准通过后切换（PRD §5.5）
 
 KNOWLEDGE_DIR = BASE_DIR / "knowledge"
 SOURCES_DIR = KNOWLEDGE_DIR / "sources"
