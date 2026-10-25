@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>铁馆教练 v2</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--line:#2a3040;--txt:#e8eaf0;--sub:#8a93a6;--acc:#4f8cff;--warn:#e5a13c;--ok:#3cb371}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:15px/1.65 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:16px}
+  h1{font-size:18px;padding:12px 4px}
+  h1 span{color:var(--sub);font-size:12px;margin-left:8px}
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);padding-bottom:8px;flex-wrap:wrap}
+  .tabs button{background:none;border:1px solid var(--line);color:var(--sub);padding:6px 14px;border-radius:8px;cursor:pointer}
+  .tabs button.on{color:var(--txt);border-color:var(--acc);background:rgba(79,140,255,.12)}
+  .page{display:none;padding:14px 4px}
+  .page.on{display:block}
+  .msg{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0;white-space:pre-wrap}
+  .msg.user{border-left:3px solid var(--acc)}
+  .msg.coach{border-left:3px solid var(--ok)}
+  .meta{color:var(--sub);font-size:12px;margin-top:6px}
+  .warn{color:var(--warn);font-size:13px}
+  .row{display:flex;gap:8px;margin-top:10px}
+  input,textarea{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 12px;font:inherit;flex:1}
+  textarea{min-height:60px;resize:vertical}
+  .btn{background:var(--acc);border:none;color:#fff;border-radius:8px;padding:9px 20px;cursor:pointer}
+  .btn.gray{background:var(--line)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+  .card b{color:var(--acc)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  label{color:var(--sub);font-size:13px;display:block;margin:8px 0 3px}
+  a{color:var(--acc)}
+  .status{color:var(--sub);font-size:12px;min-height:18px;margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>铁馆教练 <span>coach-v2 · 知识可溯源版</span></h1>
+<div class="tabs">
+  <button data-p="chat" class="on">💬 对话</button>
+  <button data-p="plan">📋 计划</button>
+  <button data-p="daily">✍️ 每日记录</button>
+  <button data-p="profile">👤 档案复盘</button>
+</div>
+
+<div class="page on" id="p-chat">
+  <div id="chatbox"></div>
+  <div class="status" id="chatstatus"></div>
+  <div class="row">
+    <textarea id="chatinput" placeholder="问教练…（Enter 发送，Shift+Enter 换行）"></textarea>
+    <button class="btn" onclick="send()">发送</button>
+  </div>
+</div>
+
+<div class="page" id="p-plan"><div class="status">还没有计划。在对话页让教练生成（例：帮我做一个 8 周增肌计划，每周 4 练）。</div><div id="plandays"></div></div>
+
+<div class="page" id="p-daily">
+  <div class="card">
+    <b>每日记录</b>
+    <label>睡眠（小时）</label><input id="d-sleep" type="number" step="0.5">
+    <label>酸痛部位</label><input id="d-sore" placeholder="如：大腿、下背">
+    <label>酸痛程度（0-10）</label><input id="d-level" type="number" min="0" max="10">
+    <label>体重（kg）</label><input id="d-weight" type="number" step="0.1">
+    <label>主观状态</label><input id="d-mood" placeholder="如：精力好 / 疲劳">
+    <label>备注</label><textarea id="d-notes"></textarea>
+    <div class="row"><button class="btn" onclick="saveDaily()">保存今日记录</button><span class="status" id="dailystatus"></span></div>
+  </div>
+</div>
+
+<div class="page" id="p-profile">
+  <div class="card">
+    <b>我的档案</b>
+    <label>目标</label><input id="pf-goal">
+    <label>训练经验</label><input id="pf-exp" placeholder="新手/1-3年/3年以上">
+    <label>每周训练天数</label><input id="pf-days" type="number">
+    <label>伤病情况</label><textarea id="pf-inj" placeholder="部位+性质+状态"></textarea>
+    <label>约束</label><textarea id="pf-cst"></textarea>
+    <div class="row"><button class="btn" onclick="saveProfile()">保存档案</button></div>
+  </div>
+  <div class="card"><b>复盘入口</b><div class="meta">在对话页输入"做周复盘"，教练会基于打卡与逐组数据出裁决。逐组数据在计划页打卡时录入。</div></div>
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); $('p-'+b.dataset.p).classList.add('on');
+  if(b.dataset.p==='plan') loadPlan();
+  if(b.dataset.p==='daily') loadDaily();
+  if(b.dataset.p==='profile') loadProfile();
+});
+
+let text='', tools=[];
+function send(){
+  const q=$('chatinput').value.trim(); if(!q)return;
+  $('chatinput').value='';
+  const box=$('chatbox');
+  box.insertAdjacentHTML('beforeend',`<div class="msg user"></div>`);
+  box.lastChild.textContent=q;
+  text='';tools=[];
+  const el=document.createElement('div');el.className='msg coach';box.appendChild(el);
+  const meta=document.createElement('div');meta.className='meta';box.appendChild(meta);
+  const status=$('chatstatus');
+  fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({message:q,session_id:'web'})}).then(r=>{
+    const reader=r.body.getReader(),dec=new TextDecoder();let buf='';
+    (function pump(){
+      reader.read().then(({done,value})=>{
+        if(done){status.textContent='';return}
+        buf+=dec.decode(value,{stream:true});
+        let idx;
+        while((idx=buf.indexOf('\n\n'))>=0){
+          const line=buf.slice(0,idx).trim();buf=buf.slice(idx+2);
+          if(!line.startsWith('data: '))continue;
+          const ev=JSON.parse(line.slice(6));
+          if(ev.type==='token'){text+=ev.text;el.textContent=text;$('p-chat').scrollIntoView()}
+          else if(ev.type==='tool'){tools.push(ev.name);meta.textContent='⚙ '+tools.join(' → ')}
+          else if(ev.type==='notice'){el.classList.add('warn');el.textContent='⚠ '+ev.text;const ne=document.createElement('div');ne.className='msg coach';box.insertBefore(ne,meta);el=ne;text=''}
+          else if(ev.type==='status'){status.textContent=ev.text}
+          else if(ev.type==='done'){meta.textContent+=`  · ${ev.model} · ${ev.usage.total_tokens} tokens${ev.retries?' · 重答'+ev.retries+'次':''}`;status.textContent=''}
+        }
+        pump();
+      });
+    })();
+  }).catch(()=>{el.textContent='连接中断，请重试。'+(text?'\n\n已收到内容：\n'+text:'')});
+}
+$('chatinput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+
+async function loadPlan(){
+  const d=await (await fetch('/api/plan')).json();
+  if(!d.days.length)return;
+  $('p-plan').querySelector('.status').textContent='当前计划（点击"打卡"录入今日逐组数据）：';
+  $('plandays').innerHTML=d.days.map(x=>`<div class="card"><b>W${x.week} D${x.day}</b> ${x.part} · ${x.status==='done'?'✅已完成':'⬜'}
+    <div class="meta">${(x.items||[]).map(i=>`${i.exercise} ${i.sets||''}×${i.reps}${i.weight?'@'+i.weight+'kg':''}`).join('；')}</div>
+    ${x.status!=='done'?`<div class="row"><button class="btn gray" onclick="punch(${x.id})">打卡并录入数据</button></div>`:''}</div>`).join('');
+}
+async function punch(id){
+  const raw=prompt('录入逐组数据，每组一行：动作 重量 次数 RPE(可选)\n例：深蹲 100 8 8');
+  if(!raw)return;
+  const logs=raw.split('\n').map(l=>{const p=l.trim().split(/\s+/);return {exercise:p[0],weight:+(p[1]||0),reps:+(p[2]||0),rpe:p[3]?+p[3]:null}}).filter(x=>x.exercise);
+  await fetch(`/api/plan/day/${id}/punch`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logs)});
+  loadPlan();
+}
+async function saveDaily(){
+  const body={sleep_hours:+$('d-sleep').value||null,soreness:$('d-sore').value,soreness_level:$('d-level').value?+$('d-level').value:null,
+              weight_kg:+$('d-weight').value||null,mood:$('d-mood').value,notes:$('d-notes').value};
+  const r=await fetch('/api/daily',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  $('dailystatus').textContent=(await r.json()).ok?'✅ 已保存（当日重复保存为覆盖确认）':'保存失败';
+}
+async function loadDaily(){
+  const d=await (await fetch('/api/daily/today')).json();
+  if(d.record){$('d-sleep').value=d.record.sleep_hours||'';$('d-sore').value=d.record.soreness||'';$('d-level').value=d.record.soreness_level??'';$('d-weight').value=d.record.weight_kg||'';$('d-mood').value=d.record.mood||'';$('d-notes').value=d.record.notes||''}
+}
+async function loadProfile(){
+  const d=await (await fetch('/api/profile')).json();
+  const p=d.profile||{};
+  $('pf-goal').value=p.goal||'';$('pf-exp').value=p.experience||'';$('pf-days').value=p.days_per_week||'';$('pf-inj').value=p.injuries||'';$('pf-cst').value=p.constraints||'';
+}
+async function saveProfile(){
+  await fetch('/api/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    goal:$('pf-goal').value,experience:$('pf-exp').value,days_per_week:+$('pf-days').value||0,injuries:$('pf-inj').value,constraints:$('pf-cst').value})});
+  alert('档案已保存');
+}
+</script>
+</body>
+</html>
