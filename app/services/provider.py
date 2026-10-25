@@ -1,25 +1,38 @@
 """模型抽象层（PRD §6.2）：换模型 = 改 .env，不动代码。
-chat_with_tools / chat_stream 是唯一接口；W3 横评即在此基础上换 MODEL_* 跑分。
+chat_with_tools / chat_stream 是唯一接口；支持跨厂商降级链（主 DeepSeek → 兜底 DashScope）。
 """
 import json
-import time
 
 from openai import OpenAI
 
-from app.config import MODEL_FALLBACK, MODEL_PRIMARY, api_key
-
-BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+from app.config import (
+    FALLBACK_PROVIDER,
+    MODEL_FALLBACK,
+    MODEL_PRIMARY,
+    MODEL_PROVIDER,
+    provider_endpoint,
+)
 
 
 class Provider:
     def __init__(self):
-        self.client = OpenAI(api_key=api_key(), base_url=BASE_URL)
+        self.clients = {}
+        self.chain = [
+            (MODEL_PROVIDER, MODEL_PRIMARY),
+            (FALLBACK_PROVIDER, MODEL_FALLBACK),
+        ]
         self.model_used = ""
 
+    def _client(self, provider_name: str) -> OpenAI:
+        if provider_name not in self.clients:
+            base_url, key = provider_endpoint(provider_name)
+            self.clients[provider_name] = OpenAI(api_key=key, base_url=base_url)
+        return self.clients[provider_name]
+
     def _call(self, messages, tools, stream: bool):
-        """主模型失败自动降级（PRD E4）。"""
+        """主模型失败自动降级（PRD E4），降级链支持跨厂商。"""
         last_err = None
-        for model in (MODEL_PRIMARY, MODEL_FALLBACK):
+        for provider_name, model in self.chain:
             try:
                 kwargs = dict(model=model, messages=messages, stream=stream)
                 if stream:
@@ -27,7 +40,7 @@ class Provider:
                 if tools:
                     kwargs["tools"] = tools
                     kwargs["tool_choice"] = "auto"
-                resp = self.client.chat.completions.create(**kwargs)
+                resp = self._client(provider_name).chat.completions.create(**kwargs)
                 self.model_used = model
                 return resp
             except Exception as e:  # noqa: BLE001 降级链

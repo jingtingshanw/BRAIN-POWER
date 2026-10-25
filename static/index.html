@@ -2,168 +2,426 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>铁馆教练 v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0c0e12">
+<title>铁馆 · AI 健身搭子</title>
 <style>
-  :root{--bg:#0f1115;--card:#1a1e26;--line:#2a3040;--txt:#e8eaf0;--sub:#8a93a6;--acc:#4f8cff;--warn:#e5a13c;--ok:#3cb371}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--txt);font:15px/1.65 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
-  .wrap{max-width:860px;margin:0 auto;padding:16px}
-  h1{font-size:18px;padding:12px 4px}
-  h1 span{color:var(--sub);font-size:12px;margin-left:8px}
-  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);padding-bottom:8px;flex-wrap:wrap}
-  .tabs button{background:none;border:1px solid var(--line);color:var(--sub);padding:6px 14px;border-radius:8px;cursor:pointer}
-  .tabs button.on{color:var(--txt);border-color:var(--acc);background:rgba(79,140,255,.12)}
-  .page{display:none;padding:14px 4px}
-  .page.on{display:block}
-  .msg{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0;white-space:pre-wrap}
-  .msg.user{border-left:3px solid var(--acc)}
-  .msg.coach{border-left:3px solid var(--ok)}
-  .meta{color:var(--sub);font-size:12px;margin-top:6px}
-  .warn{color:var(--warn);font-size:13px}
-  .row{display:flex;gap:8px;margin-top:10px}
-  input,textarea{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 12px;font:inherit;flex:1}
-  textarea{min-height:60px;resize:vertical}
-  .btn{background:var(--acc);border:none;color:#fff;border-radius:8px;padding:9px 20px;cursor:pointer}
-  .btn.gray{background:var(--line)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
-  .card b{color:var(--acc)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
-  label{color:var(--sub);font-size:13px;display:block;margin:8px 0 3px}
-  a{color:var(--acc)}
-  .status{color:var(--sub);font-size:12px;min-height:18px;margin:4px 0}
+:root{
+  --bg:#0b0d11;--bg2:#10131a;--card:#171b24;--card2:#1d2230;--line:#262c3a;--line2:#333b4f;
+  --txt:#e9ecf3;--sub:#8b94a8;--faint:#5b6376;
+  --acc:#5b8cff;--acc2:#7c5bff;--ok:#37c978;--warn:#e8a23d;--bad:#e05d5d;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#000;color:var(--txt);font:15px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;overscroll-behavior:none}
+.app{max-width:540px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative}
+@media(min-width:560px){.app{box-shadow:0 0 0 1px var(--line)}}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);flex-shrink:0}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff}
+.h-title{font-size:16px;font-weight:700}
+.h-sub{font-size:11px;color:var(--faint)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:auto;flex-shrink:0}
+.dot.off{background:var(--bad)}
+
+/* ---------- main ---------- */
+main{flex:1;overflow:hidden;position:relative}
+.page{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
+.page.active{display:block}
+
+/* ---------- tabbar ---------- */
+nav{display:flex;border-top:1px solid var(--line);background:var(--bg2);padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
+nav button{flex:1;background:none;border:none;color:var(--faint);padding:8px 0 7px;font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--acc)}
+
+/* ---------- chat ---------- */
+#p-chat{display:none;flex-direction:column;padding:0}
+#p-chat.active{display:flex}
+#chatlist{flex:1;overflow-y:auto;padding:16px 14px 10px;display:flex;flex-direction:column;gap:10px}
+.hero{margin:auto;text-align:center;padding:20px}
+.hero .big{width:64px;height:64px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff}
+.hero h2{font-size:19px;margin-bottom:6px}
+.hero p{color:var(--sub);font-size:13px;margin-bottom:20px}
+.chips{display:flex;flex-direction:column;gap:8px;max-width:340px;margin:0 auto}
+.chips button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:11px 14px;font-size:13.5px;text-align:left;cursor:pointer}
+.chips button:active{border-color:var(--acc)}
+.msg{max-width:86%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;word-break:break-word;font-size:14.5px}
+.msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-bottom-right-radius:5px}
+.msg.coach{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px}
+.msg.coach.err{border-color:var(--bad)}
+.msg .cite{color:var(--acc);font-size:12.5px}
+.msg a{color:var(--acc)}
+.meta{align-self:flex-start;color:var(--faint);font-size:11px;padding:0 4px}
+.tools{align-self:flex-start;display:flex;flex-wrap:wrap;gap:5px;padding:0 4px}
+.tchip{font-size:11px;color:var(--sub);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2px 9px;animation:pop .2s}
+@keyframes pop{from{opacity:0;transform:translateY(3px)}}
+.typing{display:inline-flex;gap:4px;padding:6px 2px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--sub);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,70%,100%{opacity:.25}35%{opacity:1}}
+.cursor{display:inline-block;width:2px;height:14px;background:var(--acc);vertical-align:-2px;animation:blink .9s infinite}
+.composer{display:flex;align-items:flex-end;gap:8px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg2)}
+.composer textarea{flex:1;background:var(--card);border:1px solid var(--line2);color:var(--txt);border-radius:20px;padding:10px 14px;font:inherit;font-size:14.5px;resize:none;max-height:110px;outline:none}
+.composer textarea:focus{border-color:var(--acc)}
+.send{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.send svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.send:disabled{opacity:.45}
+
+/* ---------- cards & forms ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card h3{font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.card h3 .tag{font-size:10.5px;font-weight:400;color:var(--faint)}
+label{display:block;color:var(--sub);font-size:12.5px;margin:11px 0 5px}
+input[type=text],input[type=number],input[type=tel],textarea,select{width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;outline:none}
+input:focus,textarea:focus{border-color:var(--acc)}
+textarea{min-height:64px;resize:vertical}
+.btn{background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;color:#fff;border-radius:11px;padding:11px 20px;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;width:100%}
+.btn:active{opacity:.85}
+.btn.ghost{background:none;border:1px solid var(--line2);color:var(--txt);font-weight:400}
+.row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sect{color:var(--faint);font-size:12px;letter-spacing:1px;margin:18px 2px 8px;font-weight:600}
+
+/* slider */
+input[type=range]{width:100%;accent-color:var(--acc);background:transparent;border:none;padding:0}
+.slider-val{text-align:center;font-size:22px;font-weight:700;color:var(--acc);margin-top:2px}
+.mood-chips{display:flex;gap:7px;flex-wrap:wrap}
+.mood-chips button{background:var(--bg2);border:1px solid var(--line2);color:var(--sub);border-radius:20px;padding:7px 14px;font-size:13px;cursor:pointer}
+.mood-chips button.on{color:#fff;border-color:var(--acc);background:rgba(91,140,255,.15)}
+
+/* plan */
+.daycard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;margin-bottom:10px}
+.daycard.done{opacity:.62}
+.dayhead{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.dayhead b{font-size:14.5px}
+.badge{font-size:11px;padding:2px 9px;border-radius:20px;background:var(--bg2);color:var(--sub);border:1px solid var(--line2)}
+.badge.ok{color:var(--ok);border-color:rgba(55,201,120,.4);background:rgba(55,201,120,.08)}
+.exlist{color:var(--sub);font-size:13px;margin:5px 0 2px;line-height:1.8}
+.empty{text-align:center;color:var(--faint);padding:60px 30px;font-size:13.5px;line-height:2}
+.empty .big{font-size:40px;margin-bottom:10px}
+
+/* bottom sheet */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.mask.show{display:flex}
+.sheet{width:100%;max-width:540px;background:var(--bg2);border-radius:20px 20px 0 0;border-top:1px solid var(--line2);padding:18px 18px calc(20px + env(safe-area-inset-bottom));animation:up .22s}
+@keyframes up{from{transform:translateY(40%);opacity:.4}}
+.sheet h3{margin-bottom:4px}
+.sheet .hint{color:var(--faint);font-size:12px;margin-bottom:10px}
+
+/* toast */
+#toast{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:99;background:var(--card2);border:1px solid var(--line2);color:var(--txt);font-size:13.5px;border-radius:24px;padding:9px 20px;opacity:0;pointer-events:none;transition:opacity .25s;max-width:85%}
+#toast.show{opacity:1}
+#toast.err{border-color:var(--bad)}
 </style>
 </head>
 <body>
-<div class="wrap">
-<h1>铁馆教练 <span>coach-v2 · 知识可溯源版</span></h1>
-<div class="tabs">
-  <button data-p="chat" class="on">💬 对话</button>
-  <button data-p="plan">📋 计划</button>
-  <button data-p="daily">✍️ 每日记录</button>
-  <button data-p="profile">👤 档案复盘</button>
-</div>
+<div class="app">
+<header>
+  <div class="logo">铁</div>
+  <div><div class="h-title">铁馆</div><div class="h-sub">可溯源的 AI 健身搭子</div></div>
+  <div class="dot" id="hdot" title="服务状态"></div>
+</header>
 
-<div class="page on" id="p-chat">
-  <div id="chatbox"></div>
-  <div class="status" id="chatstatus"></div>
-  <div class="row">
-    <textarea id="chatinput" placeholder="问教练…（Enter 发送，Shift+Enter 换行）"></textarea>
-    <button class="btn" onclick="send()">发送</button>
+<main>
+<!-- ================= 对话 ================= -->
+<div class="page active" id="p-chat">
+  <div id="chatlist">
+    <div class="hero" id="hero">
+      <div class="big">铁</div>
+      <h2>今天练什么？</h2>
+      <p>懂运动科学的搭子 · 每个建议都有出处</p>
+      <div class="chips">
+        <button onclick="quick(this)">帮我做一份每周 4 练的增肌计划</button>
+        <button onclick="quick(this)">练完腿第二天特别酸，还继续练吗？</button>
+        <button onclick="quick(this)">我每周只能练 3 次，频率够吗？</button>
+        <button onclick="quick(this)">今天有点不想练，感觉最近没变化</button>
+      </div>
+    </div>
+  </div>
+  <div class="composer">
+    <textarea id="chatinput" rows="1" placeholder="跟搭子聊聊…"></textarea>
+    <button class="send" id="sendbtn" onclick="send()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
   </div>
 </div>
 
-<div class="page" id="p-plan"><div class="status">还没有计划。在对话页让教练生成（例：帮我做一个 8 周增肌计划，每周 4 练）。</div><div id="plandays"></div></div>
+<!-- ================= 计划 ================= -->
+<div class="page" id="p-plan"></div>
 
+<!-- ================= 记录 ================= -->
 <div class="page" id="p-daily">
+  <div class="sect">每日记录</div>
   <div class="card">
-    <b>每日记录</b>
-    <label>睡眠（小时）</label><input id="d-sleep" type="number" step="0.5">
-    <label>酸痛部位</label><input id="d-sore" placeholder="如：大腿、下背">
-    <label>酸痛程度（0-10）</label><input id="d-level" type="number" min="0" max="10">
-    <label>体重（kg）</label><input id="d-weight" type="number" step="0.1">
-    <label>主观状态</label><input id="d-mood" placeholder="如：精力好 / 疲劳">
-    <label>备注</label><textarea id="d-notes"></textarea>
-    <div class="row"><button class="btn" onclick="saveDaily()">保存今日记录</button><span class="status" id="dailystatus"></span></div>
+    <div class="grid2">
+      <div><label>睡眠（小时）</label><input id="d-sleep" type="number" step="0.5" inputmode="decimal" placeholder="7.5"></div>
+      <div><label>体重（kg）</label><input id="d-weight" type="number" step="0.1" inputmode="decimal" placeholder="92.0"></div>
+    </div>
+    <label>酸痛部位</label>
+    <input id="d-sore" type="text" placeholder="如：大腿、下背（没有就空着）">
+    <label>酸痛程度</label>
+    <input id="d-level" type="range" min="0" max="10" step="1" value="0" oninput="$('levelval').textContent=this.value">
+    <div class="slider-val" id="levelval">0</div>
+    <label>主观状态</label>
+    <div class="mood-chips" id="moods">
+      <button data-v="精力好">精力好</button><button data-v="正常">正常</button>
+      <button data-v="有点疲劳">有点疲劳</button><button data-v="很累">很累</button>
+    </div>
+    <label>备注</label>
+    <textarea id="d-notes" placeholder="今天状态、饮食、其他想说的…"></textarea>
+    <div class="row"><button class="btn" onclick="saveDaily()">保存今日记录</button></div>
+  </div>
+  <div class="card">
+    <h3>为什么每天记？</h3>
+    <div style="color:var(--sub);font-size:13px">睡眠、酸痛和体重是周复盘裁决的依据——搭子会拿这些数据和你的逐组记录对账，判断该加重、维持还是减载。</div>
   </div>
 </div>
 
-<div class="page" id="p-profile">
+<!-- ================= 我的 ================= -->
+<div class="page" id="p-me">
+  <div class="sect">我的档案</div>
   <div class="card">
-    <b>我的档案</b>
-    <label>目标</label><input id="pf-goal">
-    <label>训练经验</label><input id="pf-exp" placeholder="新手/1-3年/3年以上">
-    <label>每周训练天数</label><input id="pf-days" type="number">
-    <label>伤病情况</label><textarea id="pf-inj" placeholder="部位+性质+状态"></textarea>
-    <label>约束</label><textarea id="pf-cst"></textarea>
+    <label>目标</label><input id="pf-goal" type="text" placeholder="减脂 / 增肌 / 力量…">
+    <div class="grid2">
+      <div><label>训练经验</label><input id="pf-exp" type="text" placeholder="新手 / 1-3年 / 3年以上"></div>
+      <div><label>每周训练天数</label><input id="pf-days" type="number" inputmode="numeric" placeholder="4"></div>
+    </div>
+    <label>伤病情况</label><textarea id="pf-inj" placeholder="部位 + 性质 + 状态（没有就空着）"></textarea>
+    <label>约束条件</label><textarea id="pf-cst" placeholder="如：只有哑铃 / 膝盖不能深蹲"></textarea>
     <div class="row"><button class="btn" onclick="saveProfile()">保存档案</button></div>
   </div>
-  <div class="card"><b>复盘入口</b><div class="meta">在对话页输入"做周复盘"，教练会基于打卡与逐组数据出裁决。逐组数据在计划页打卡时录入。</div></div>
+  <div class="card">
+    <h3>关于铁馆</h3>
+    <div style="color:var(--sub);font-size:13px;line-height:2">
+      · 关键建议全部来自入库的书籍与论文，可点开出处核实<br>
+      · 库里没有的内容会明确标注「一般经验」，不编造<br>
+      · 逐组数据落库，周复盘基于你的真实数据裁决<br>
+      · 红旗信号（放射痛/夜间痛醒等）一律劝停就医<br>
+      <span id="me-model" style="color:var(--faint)"></span>
+    </div>
+  </div>
 </div>
+</main>
+
+<!-- ================= tabbar ================= -->
+<nav>
+  <button data-p="chat" class="on" onclick="tab(this)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>对话</button>
+  <button data-p="plan" onclick="tab(this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>计划</button>
+  <button data-p="daily" onclick="tab(this)"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>记录</button>
+  <button data-p="me" onclick="tab(this)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</button>
+</nav>
 </div>
+
+<!-- punch sheet -->
+<div class="mask" id="mask">
+  <div class="sheet">
+    <h3 id="sheet-title">打卡</h3>
+    <div class="hint">每组一行：动作 重量 次数 RPE(可选)<br>例：<b>深蹲 100 8 8</b>（重量没变也要写，RPE 是力竭前剩余次数的感觉分）</div>
+    <textarea id="sheet-logs" style="min-height:120px" placeholder="深蹲 100 8 8&#10;腿举 180 10 9"></textarea>
+    <div class="row">
+      <button class="btn ghost" style="flex:1" onclick="closeSheet()">取消</button>
+      <button class="btn" style="flex:2" onclick="submitPunch()">提交打卡</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
 
 <script>
 const $=id=>document.getElementById(id);
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); $('p-'+b.dataset.p).classList.add('on');
-  if(b.dataset.p==='plan') loadPlan();
-  if(b.dataset.p==='daily') loadDaily();
-  if(b.dataset.p==='profile') loadProfile();
-});
+const TOOL_ICON={rag_search:'🔍 翻文献',get_profile:'👤 看档案',log_exercise:'📝 记数据',get_progress:'📈 查进度',create_full_plan:'📌 建计划',save_memory:'💾 记住你',search_memory:'💭 回想你',get_plan:'📋 看计划',get_daily:'🗓 看记录'};
 
-let text='', tools=[];
+/* ---------- tabs ---------- */
+function tab(btn){
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===btn));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  const p=$('p-'+btn.dataset.p);p.classList.add('active');
+  if(btn.dataset.p==='plan')loadPlan();
+  if(btn.dataset.p==='daily')loadDaily();
+  if(btn.dataset.p==='me')loadMe();
+  p.scrollTop=0;
+}
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg,err){
+  const t=$('toast');t.textContent=msg;t.classList.toggle('err',!!err);t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ---------- markdown-lite ---------- */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function render(s){
+  let h=esc(s);
+  h=h.replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>');
+  h=h.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  h=h.replace(/(^|[\s（(])(https?:\/\/[^\s<）)]+)/g,'$1<a href="$2" target="_blank" rel="noopener">链接</a>');
+  h=h.replace(/《([^》]{2,60})》/g,'<span class="cite">《$1》</span>');
+  h=h.replace(/^###\s?(.+)$/gm,'<b>$1</b>');
+  return h;
+}
+
+/* ---------- chat ---------- */
+let busy=false;
+function quick(btn){$('chatinput').value=btn.textContent.trim();send()}
+function autoGrow(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,110)+'px'}
+$('chatinput').addEventListener('input',e=>autoGrow(e.target));
+$('chatinput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send()}});
+
 function send(){
-  const q=$('chatinput').value.trim(); if(!q)return;
-  $('chatinput').value='';
-  const box=$('chatbox');
-  box.insertAdjacentHTML('beforeend',`<div class="msg user"></div>`);
-  box.lastChild.textContent=q;
-  text='';tools=[];
-  const el=document.createElement('div');el.className='msg coach';box.appendChild(el);
-  const meta=document.createElement('div');meta.className='meta';box.appendChild(meta);
-  const status=$('chatstatus');
+  if(busy)return;
+  const q=$('chatinput').value.trim();if(!q)return;
+  busy=true;$('sendbtn').disabled=true;$('chatinput').value='';autoGrow($('chatinput'));
+  $('hero')?.remove();
+  const list=$('chatlist');
+  const um=document.createElement('div');um.className='msg user';um.textContent=q;list.appendChild(um);
+  const cm=document.createElement('div');cm.className='msg coach';cm.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';list.appendChild(cm);
+  const tools=document.createElement('div');tools.className='tools';list.appendChild(tools);
+  const meta=document.createElement('div');meta.className='meta';list.appendChild(meta);
+  list.scrollTop=list.scrollHeight;
+
+  let text='',started=false;
+  const finish=()=>{if(started)cm.innerHTML=render(text)};
   fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({message:q,session_id:'web'})}).then(r=>{
+    if(!r.ok)throw new Error('HTTP '+r.status);
     const reader=r.body.getReader(),dec=new TextDecoder();let buf='';
     (function pump(){
       reader.read().then(({done,value})=>{
-        if(done){status.textContent='';return}
+        if(done){finish();busy=false;$('sendbtn').disabled=false;return}
         buf+=dec.decode(value,{stream:true});
         let idx;
         while((idx=buf.indexOf('\n\n'))>=0){
           const line=buf.slice(0,idx).trim();buf=buf.slice(idx+2);
           if(!line.startsWith('data: '))continue;
-          const ev=JSON.parse(line.slice(6));
-          if(ev.type==='token'){text+=ev.text;el.textContent=text;$('p-chat').scrollIntoView()}
-          else if(ev.type==='tool'){tools.push(ev.name);meta.textContent='⚙ '+tools.join(' → ')}
-          else if(ev.type==='notice'){el.classList.add('warn');el.textContent='⚠ '+ev.text;const ne=document.createElement('div');ne.className='msg coach';box.insertBefore(ne,meta);el=ne;text=''}
-          else if(ev.type==='status'){status.textContent=ev.text}
-          else if(ev.type==='done'){meta.textContent+=`  · ${ev.model} · ${ev.usage.total_tokens} tokens${ev.retries?' · 重答'+ev.retries+'次':''}`;status.textContent=''}
+          let ev;try{ev=JSON.parse(line.slice(6))}catch{continue}
+          if(ev.type==='token'){
+            if(!started){started=true;text=''}
+            text+=ev.text;
+            cm.innerHTML=render(text)+'<span class="cursor"></span>';
+            list.scrollTop=list.scrollHeight;
+          }else if(ev.type==='tool'){
+            const c=document.createElement('span');c.className='tchip';c.textContent=TOOL_ICON[ev.name]||'⚙ '+ev.name;tools.appendChild(c);
+            list.scrollTop=list.scrollHeight;
+          }else if(ev.type==='notice'){
+            if(started){finish();const prev=document.createElement('div');prev.className='msg coach err';prev.style.opacity=.55;prev.innerHTML=render(text);list.insertBefore(prev,cm)}
+            cm.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';text='';started=false;
+          }else if(ev.type==='status'&&!started){
+            meta.textContent=ev.text;list.scrollTop=list.scrollHeight;
+          }else if(ev.type==='done'){
+            finish();
+            meta.textContent=`${ev.model||''}${ev.usage?' · '+ev.usage.total_tokens+' tokens':''}${ev.retries?' · 护栏重答'+ev.retries+'次':''}`;
+          }else if(ev.type==='error'){
+            finish();cm.classList.add('err');meta.textContent='出错了，请重试';
+          }
         }
         pump();
       });
     })();
-  }).catch(()=>{el.textContent='连接中断，请重试。'+(text?'\n\n已收到内容：\n'+text:'')});
+  }).catch(e=>{
+    cm.classList.add('err');
+    cm.innerHTML=text?render(text)+'<br><span style="color:var(--bad)">⚠ 连接中断，以上内容可能不完整</span>':'⚠ 连接中断，请重试';
+    busy=false;$('sendbtn').disabled=false;
+  });
 }
-$('chatinput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
 
+/* ---------- plan ---------- */
+let punchDayId=null;
 async function loadPlan(){
-  const d=await (await fetch('/api/plan')).json();
-  if(!d.days.length)return;
-  $('p-plan').querySelector('.status').textContent='当前计划（点击"打卡"录入今日逐组数据）：';
-  $('plandays').innerHTML=d.days.map(x=>`<div class="card"><b>W${x.week} D${x.day}</b> ${x.part} · ${x.status==='done'?'✅已完成':'⬜'}
-    <div class="meta">${(x.items||[]).map(i=>`${i.exercise} ${i.sets||''}×${i.reps}${i.weight?'@'+i.weight+'kg':''}`).join('；')}</div>
-    ${x.status!=='done'?`<div class="row"><button class="btn gray" onclick="punch(${x.id})">打卡并录入数据</button></div>`:''}</div>`).join('');
+  try{
+    const d=await(await fetch('/api/plan')).json();
+    const box=$('p-plan');
+    if(!d.days||!d.days.length){
+      box.innerHTML=`<div class="empty"><div class="big">📋</div>还没有计划<br>去「对话」跟搭子说：<b>帮我做一份每周 4 练的增肌计划</b></div>`;return;
+    }
+    const weeks={};
+    d.days.forEach(x=>(weeks[x.week]=weeks[x.week]||[]).push(x));
+    box.innerHTML=`<div class="sect">当前计划 · 点击未完成训练日打卡</div>`+
+      Object.keys(weeks).sort((a,b)=>a-b).map(w=>
+        `<div class="sect">第 ${w} 周</div>`+weeks[w].map(x=>`
+        <div class="daycard ${x.status==='done'?'done':''}">
+          <div class="dayhead"><b>周${'一二三四五六日'[x.day-1]||x.day}</b><span class="badge">${x.part||'训练'}</span>
+            ${x.status==='done'?'<span class="badge ok">已完成</span>':''}</div>
+          <div class="exlist">${(x.items||[]).map(i=>`${i.exercise} ${i.sets||''}×${i.reps}${i.weight?' @'+i.weight+'kg':''}`).join('<br>')}</div>
+          ${x.status!=='done'?`<div class="row"><button class="btn ghost" onclick="openSheet(${x.id},'W${x.week} 周${'一二三四五六日'[x.day-1]||x.day} ${x.part||''}')">打卡并录入逐组数据</button></div>`:''}
+        </div>`).join('')).join('');
+  }catch{toast('计划加载失败','err')}
 }
-async function punch(id){
-  const raw=prompt('录入逐组数据，每组一行：动作 重量 次数 RPE(可选)\n例：深蹲 100 8 8');
-  if(!raw)return;
-  const logs=raw.split('\n').map(l=>{const p=l.trim().split(/\s+/);return {exercise:p[0],weight:+(p[1]||0),reps:+(p[2]||0),rpe:p[3]?+p[3]:null}}).filter(x=>x.exercise);
-  await fetch(`/api/plan/day/${id}/punch`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logs)});
-  loadPlan();
+function openSheet(id,title){punchDayId=id;$('sheet-title').textContent='打卡 · '+title;$('sheet-logs').value='';$('mask').classList.add('show')}
+function closeSheet(){$('mask').classList.remove('show')}
+$('mask').addEventListener('click',e=>{if(e.target===$('mask'))closeSheet()});
+async function submitPunch(){
+  const raw=$('sheet-logs').value.trim();if(!raw){toast('先录入至少一组数据','err');return}
+  const logs=raw.split('\n').map(l=>{const p=l.trim().split(/\s+/);return{exercise:p[0],weight:+(p[1]||0),reps:+(p[2]||0),rpe:p[3]?+p[3]:null}}).filter(x=>x.exercise);
+  if(!logs.length){toast('格式看不懂，检查一下','err');return}
+  try{
+    const r=await fetch(`/api/plan/day/${punchDayId}/punch`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logs)});
+    if(!r.ok)throw 0;
+    closeSheet();toast('✅ 打卡成功，数据已落库');loadPlan();
+  }catch{toast('打卡失败，请重试','err')}
+}
+
+/* ---------- daily ---------- */
+let mood='';
+$('moods').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  mood=b.dataset.v;
+  $('moods').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+});
+async function loadDaily(){
+  try{
+    const d=await(await fetch('/api/daily/today')).json();
+    if(!d.record)return;
+    const r=d.record;
+    $('d-sleep').value=r.sleep_hours??'';$('d-weight').value=r.weight_kg??'';
+    $('d-sore').value=r.soreness??'';$('d-level').value=r.soreness_level??0;$('levelval').textContent=r.soreness_level??0;
+    $('d-notes').value=r.notes??'';
+    mood=r.mood||'';$('moods').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===mood));
+  }catch{}
 }
 async function saveDaily(){
-  const body={sleep_hours:+$('d-sleep').value||null,soreness:$('d-sore').value,soreness_level:$('d-level').value?+$('d-level').value:null,
-              weight_kg:+$('d-weight').value||null,mood:$('d-mood').value,notes:$('d-notes').value};
-  const r=await fetch('/api/daily',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  $('dailystatus').textContent=(await r.json()).ok?'✅ 已保存（当日重复保存为覆盖确认）':'保存失败';
+  const body={sleep_hours:+$('d-sleep').value||null,soreness:$('d-sore').value.trim()||null,
+    soreness_level:+$('d-level').value,weight_kg:+$('d-weight').value||null,mood:mood||null,notes:$('d-notes').value.trim()||null};
+  try{
+    const r=await fetch('/api/daily',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.ok)toast('✅ 已保存'+(d.overwrite?'（覆盖了今天早前的记录）':''));
+    else toast((d.msg||'保存失败'),'err');
+  }catch{toast('保存失败，请检查服务','err')}
 }
-async function loadDaily(){
-  const d=await (await fetch('/api/daily/today')).json();
-  if(d.record){$('d-sleep').value=d.record.sleep_hours||'';$('d-sore').value=d.record.soreness||'';$('d-level').value=d.record.soreness_level??'';$('d-weight').value=d.record.weight_kg||'';$('d-mood').value=d.record.mood||'';$('d-notes').value=d.record.notes||''}
-}
-async function loadProfile(){
-  const d=await (await fetch('/api/profile')).json();
-  const p=d.profile||{};
-  $('pf-goal').value=p.goal||'';$('pf-exp').value=p.experience||'';$('pf-days').value=p.days_per_week||'';$('pf-inj').value=p.injuries||'';$('pf-cst').value=p.constraints||'';
+
+/* ---------- me ---------- */
+async function loadMe(){
+  try{
+    const d=await(await fetch('/api/profile')).json();
+    const p=d.profile||{};
+    $('pf-goal').value=p.goal||'';$('pf-exp').value=p.experience||'';
+    $('pf-days').value=p.days_per_week||'';$('pf-inj').value=p.injuries||'';$('pf-cst').value=p.constraints||'';
+  }catch{}
+  try{
+    const h=await(await fetch('/api/health')).json();
+    $('me-model').textContent='当前模型：'+(h.model||'未知');
+    $('hdot').classList.toggle('off',h.status!=='ok');
+  }catch{$('hdot').classList.add('off')}
 }
 async function saveProfile(){
-  await fetch('/api/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    goal:$('pf-goal').value,experience:$('pf-exp').value,days_per_week:+$('pf-days').value||0,injuries:$('pf-inj').value,constraints:$('pf-cst').value})});
-  alert('档案已保存');
+  try{
+    const r=await fetch('/api/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      goal:$('pf-goal').value.trim(),experience:$('pf-exp').value.trim(),days_per_week:+$('pf-days').value||0,
+      injuries:$('pf-inj').value.trim(),constraints:$('pf-cst').value.trim()})});
+    if(r.ok)toast('✅ 档案已保存');else throw 0;
+  }catch{toast('保存失败','err')}
 }
+
+/* ---------- init ---------- */
+(async()=>{
+  try{
+    const h=await(await fetch('/api/health')).json();
+    $('hdot').classList.toggle('off',h.status!=='ok');
+    $('me-model').textContent='当前模型：'+(h.model||'未知');
+  }catch{$('hdot').classList.add('off')}
+})();
 </script>
 </body>
 </html>

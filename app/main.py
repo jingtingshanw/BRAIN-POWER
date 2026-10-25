@@ -37,7 +37,9 @@ def health(db=Depends(get_db)):
         db.execute(sql_text("SELECT 1"))
     except Exception:  # noqa: BLE001
         ok = False
-    return {"status": "ok" if ok else "db_down", "provider": "v2"}
+    from app.config import MODEL_PRIMARY
+
+    return {"status": "ok" if ok else "db_down", "provider": "v2", "model": MODEL_PRIMARY}
 
 
 class ChatIn(BaseModel):
