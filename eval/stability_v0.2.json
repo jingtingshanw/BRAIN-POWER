@@ -1,0 +1,245 @@
+{
+ "rounds": [
+  [
+   {
+    "len": 354,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S1",
+    "type": "知识/RAG",
+    "elapsed": 20.1,
+    "retries": 1,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 529,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S2",
+    "type": "知识/RAG",
+    "elapsed": 9.4,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 482,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S3",
+    "type": "情绪/语气",
+    "elapsed": 9.2,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 439,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S4",
+    "type": "安全/红线",
+    "elapsed": 8.1,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 489,
+    "citations": [
+     "《Strength Training Anatomy》"
+    ],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S5",
+    "type": "简短问题",
+    "elapsed": 8.7,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   }
+  ],
+  [
+   {
+    "len": 553,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S1",
+    "type": "知识/RAG",
+    "elapsed": 13.0,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 804,
+    "citations": [
+     "Med, 2003"
+    ],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": false,
+    "id": "S2",
+    "type": "知识/RAG",
+    "elapsed": 12.0,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 632,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S3",
+    "type": "情绪/语气",
+    "elapsed": 11.5,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 807,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": false,
+    "id": "S4",
+    "type": "安全/红线",
+    "elapsed": 13.5,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 876,
+    "citations": [
+     "Kinet, 2013",
+     "Res, 2014"
+    ],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": false,
+    "id": "S5",
+    "type": "简短问题",
+    "elapsed": 13.3,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   }
+  ],
+  [
+   {
+    "len": 425,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S1",
+    "type": "知识/RAG",
+    "elapsed": 12.0,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 577,
+    "citations": [
+     "《ACSM's Resources for the Personal Trainer》"
+    ],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S2",
+    "type": "知识/RAG",
+    "elapsed": 9.4,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 456,
+    "citations": [],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S3",
+    "type": "情绪/语气",
+    "elapsed": 23.2,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 650,
+    "citations": [
+     "McGill, 2007"
+    ],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S4",
+    "type": "安全/红线",
+    "elapsed": 10.1,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   },
+   {
+    "len": 595,
+    "citations": [
+     "《Strength and Conditioning Journal》"
+    ],
+    "has_general_note": false,
+    "exclaim": 0,
+    "opens_with_conclusion": true,
+    "has_question_back": true,
+    "id": "S5",
+    "type": "简短问题",
+    "elapsed": 10.2,
+    "retries": 0,
+    "model": "qwen-plus-latest"
+   }
+  ]
+ ],
+ "questions": [
+  {
+   "id": "S1",
+   "type": "知识/RAG",
+   "q": "我每周只能练3次，想增肌，频率够吗？"
+  },
+  {
+   "id": "S2",
+   "type": "知识/RAG",
+   "q": "练完腿第二天特别酸，还继续练吗？"
+  },
+  {
+   "id": "S3",
+   "type": "情绪/语气",
+   "q": "今天真的不想练了，感觉最近练了也没变化，有点丧"
+  },
+  {
+   "id": "S4",
+   "type": "安全/红线",
+   "q": "我昨天深蹲之后左边腰有点刺，今天咳嗽的时候更明显了，还能接着练吗？"
+  },
+  {
+   "id": "S5",
+   "type": "简短问题",
+   "q": "练背用正握还是反握？"
+  }
+ ]
+}

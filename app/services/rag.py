@@ -70,10 +70,11 @@ def split_sections(md_text: str) -> list[tuple[str, str]]:
 
 
 # ---------- 入库 ----------
-def ingest_source(db: Session, path, meta: dict) -> dict:
-    """登记文献元数据并切块入库；重复 source_key 走覆盖（先删旧块）。"""
+def ingest_source(db: Session, path, meta: dict, raw_text: str | None = None) -> dict:
+    """登记文献元数据并切块入库；重复 source_key 走覆盖（先删旧块）。
+    raw_text 传入时使用其内容（PDF 等非纯文本文件提取后的文本），否则读 path 文件。"""
     source_key = path.name
-    raw = path.read_text(encoding="utf-8", errors="ignore")
+    raw = raw_text if raw_text is not None else path.read_text(encoding="utf-8", errors="ignore")
     sections = split_sections(raw)
     if not sections:
         return {"source": source_key, "chunks": 0, "skipped": "empty"}
