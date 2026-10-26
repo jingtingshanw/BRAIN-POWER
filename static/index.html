@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0c0e12">
 <title>BRAIN-POWER · 你的健身搭子</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🧠</text></svg>">
 <style>
 :root{
   --bg:#0b0d11;--bg2:#10131a;--card:#171b24;--card2:#1d2230;--line:#262c3a;--line2:#333b4f;
@@ -120,7 +121,7 @@ input[type=range]{width:100%;accent-color:var(--acc);background:transparent;bord
 <body>
 <div class="app">
 <header>
-  <div class="logo">铁</div>
+  <div class="logo">B</div>
   <div><div class="h-title">BRAIN-POWER</div><div class="h-sub">可溯源的 AI 健身搭子</div></div>
   <div class="dot" id="hdot" title="服务状态"></div>
 </header>
@@ -130,7 +131,7 @@ input[type=range]{width:100%;accent-color:var(--acc);background:transparent;bord
 <div class="page active" id="p-chat">
   <div id="chatlist">
     <div class="hero" id="hero">
-      <div class="big">铁</div>
+      <div class="big">🧠</div>
       <h2>今天练什么？</h2>
       <p>懂运动科学的搭子 · 每个建议都有出处</p>
       <div class="chips">
@@ -305,13 +306,12 @@ function send(){
             const c=document.createElement('span');c.className='tchip';c.textContent=TOOL_ICON[ev.name]||'⚙ '+ev.name;tools.appendChild(c);
             list.scrollTop=list.scrollHeight;
           }else if(ev.type==='notice'){
-            if(started){finish();const prev=document.createElement('div');prev.className='msg coach err';prev.style.opacity=.55;prev.innerHTML=render(text);list.insertBefore(prev,cm)}
             cm.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';text='';started=false;
           }else if(ev.type==='status'&&!started){
             meta.textContent=ev.text;list.scrollTop=list.scrollHeight;
           }else if(ev.type==='done'){
             finish();
-            meta.textContent=`${ev.model||''}${ev.usage?' · '+ev.usage.total_tokens+' tokens':''}${ev.retries?' · 护栏重答'+ev.retries+'次':''}`;
+            meta.textContent=ev.retries?('✓ 已通过引用校验 · 自动重答 '+ev.retries+' 次'):'';
           }else if(ev.type==='error'){
             finish();cm.classList.add('err');meta.textContent='出错了，请重试';
           }
