@@ -3,3 +3,7 @@ __pycache__/
 .env
 scripts/_*.py
 *.log
+knowledge/sources/
+*.pdf
+free-layer/
+.env.example.bak
