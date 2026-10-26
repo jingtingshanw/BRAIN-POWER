@@ -9,3 +9,4 @@ knowledge/sources/*
 free-layer/
 .env.example.bak
 !knowledge/sources/README.md
+.playwright-cli/
