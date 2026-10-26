@@ -3,7 +3,9 @@ __pycache__/
 .env
 scripts/_*.py
 *.log
-knowledge/sources/
+knowledge/sources/*
+!knowledge/sources/README.md
 *.pdf
 free-layer/
 .env.example.bak
+!knowledge/sources/README.md
